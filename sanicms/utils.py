@@ -16,26 +16,31 @@ _log = logging.getLogger('zipkin')
 
 PAGE_COUNT = 20
 
+
 def jsonify(records):
     """
     Parse asyncpg record response into JSON format
     """
     return [dict(r.items()) for r in records]
 
+
 async def async_request(calls):
-    results = await asyncio.gather(*[ call[2] for call in calls])
+    results = await asyncio.gather(*[call[2] for call in calls])
     for index, obj in enumerate(results):
         call = calls[index]
         call[0][call[1]] = results[index]
+
 
 async def async_execute(*calls):
     results = await asyncio.gather(*calls)
     return tuple(results)
 
+
 def id_to_hex(id):
     if id is None:
         return None
     return '{0:x}'.format(id)
+
 
 async def consume(q, app):
     zs = app.config['ZIPKIN_SERVER']
@@ -60,14 +65,14 @@ async def consume(q, app):
                     event = log.key_values.get('event') or ''
                     payload = log.key_values.get('payload')
                     an = []
-                    start_time = int(span.start_time*1000000)
-                    duration = int(span.duration*1000000)
+                    start_time = int(span.start_time * 1000000)
+                    duration = int(span.duration * 1000000)
                     if event == 'client':
                         an = {'cs': start_time,
-                            'cr': start_time + duration}
+                              'cr': start_time + duration}
                     elif event == 'server':
                         an = {'sr': start_time,
-                            'ss': start_time + duration}
+                              'ss': start_time + duration}
                     else:
                         binary_annotations["%s@%s" % (event, str(log.timestamp))] = payload
                     for k, v in an.items():
@@ -100,6 +105,7 @@ async def consume(q, app):
             finally:
                 pass
 
+
 class CustomHandler(ErrorHandler):
 
     def default(self, request, exception):
@@ -117,6 +123,7 @@ class CustomHandler(ErrorHandler):
             return json.dumps(data, status=exception.status_code)
         return super().default(request, exception)
 
+
 def before_request(request):
     try:
         span_context = opentracing.tracer.extract(
@@ -127,7 +134,7 @@ def before_request(request):
         span_context = None
     handler = request.app.router.get(request)
     span = opentracing.tracer.start_span(operation_name=handler[0].__name__,
-                             child_of=span_context)
+                                         child_of=span_context)
     span.log_kv({'event': 'server'})
     span.set_tag('http.url', request.url)
     span.set_tag('http.method', request.method)
@@ -135,6 +142,7 @@ def before_request(request):
     if ip:
         span.set_tag(tags.PEER_HOST_IPV4, "{}:{}".format(ip[0], ip[1]))
     return span
+
 
 def create_span(span_id, parent_span_id, trace_id, span_name,
                 start_time, duration, annotations,

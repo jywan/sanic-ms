@@ -6,6 +6,7 @@ import logging
 
 logger = logging.getLogger('sanic')
 
+
 class Field:
     def __init__(self, description=None, required=None, name=None):
         self.name = name
@@ -120,19 +121,20 @@ class Object(Field):
                 key: serialize_schema(schema)
                 for key, schema in self.cls.__dict__.items()
                 if not key.startswith("_")
-                },
+            },
             **super().serialize()
         }
 
     def serialize(self):
         return {
-            #"type": "object",
-            #"schema": {
+            # "type": "object",
+            # "schema": {
             #    "$ref": "#/definitions/{}".format(self.object_name)
-            #},
+            # },
             "$ref": "#/definitions/{}".format(self.object_name),
             **super().serialize()
         }
+
 
 class PeeweeObject(Field):
     def __init__(self, cls, *args, object_name=None, **kwargs):
@@ -234,6 +236,7 @@ class PeeweeObject(Field):
             **super().serialize()
         }
 
+
 def serialize_schema(schema):
     schema_type = type(schema)
     # --------------------------------------------------------------- #
@@ -318,6 +321,7 @@ def route(summary=None, description=None, consumes=None, produces=None,
             route_spec.produces_content_type = produces_content_type
 
         return func
+
     return inner
 
 
@@ -325,6 +329,7 @@ def summary(text):
     def inner(func):
         route_specs[func].summary = text
         return func
+
     return inner
 
 
@@ -332,6 +337,7 @@ def description(text):
     def inner(func):
         route_specs[func].description = text
         return func
+
     return inner
 
 
@@ -341,6 +347,7 @@ def consumes(*args, content_type=None):
             route_specs[func].consumes = args[0] if len(args) == 1 else args
             route_specs[func].consumes_content_type = content_type
         return func
+
     return inner
 
 
@@ -350,6 +357,7 @@ def produces(*args, content_type=None):
             route_specs[func].produces = args[0] if len(args) == 1 else args
             route_specs[func].produces_content_type = content_type
         return func
+
     return inner
 
 
@@ -357,4 +365,5 @@ def tag(name):
     def inner(func):
         route_specs[func].tags.append(name)
         return func
+
     return inner

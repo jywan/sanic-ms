@@ -7,8 +7,8 @@ import opentracing
 from asyncpg import create_pool
 from sanicms.utils import jsonify
 
-
 logger = logging.getLogger('sanic')
+
 
 class BaseConnection(object):
     def __init__(self, pool, span=None, conn=None):
@@ -23,7 +23,7 @@ class BaseConnection(object):
     def before(self, name, query, *args):
         if self._span:
             span = opentracing.tracer.start_span(operation_name=name, child_of=self._span)
-            span.log_kv({ 'event': 'client'})
+            span.log_kv({'event': 'client'})
             span.set_tag('component', 'db-execute')
             span.set_tag('db.type', 'sql')
             span.set_tag('db.sql', query)
@@ -39,13 +39,13 @@ class BaseConnection(object):
     async def remove_listener(self, channel, callback):
         await self.conn.remove_listener(channel, callback)
 
-    async def execute(self, query:str, *args, timeout:float=None):
+    async def execute(self, query: str, *args, timeout: float = None):
         span = self.before('execute', query, *args)
         res = await self.conn.execute(query, *args, timeout=timeout)
         self.finish(span)
         return res
 
-    async def executemany(self, command:str, args, timeout:float=None):
+    async def executemany(self, command: str, args, timeout: float = None):
         span = self.before('executemany', command, args)
         res = await self.conn.executemmay(command, args, timeout=timeout)
         self.finish(span)
@@ -101,6 +101,7 @@ class BaseConnection(object):
     async def __aexit__(self, exc_type, exc_value, traceback):
         await self.release()
 
+
 class TransactionConnection(BaseConnection):
     def __init__(self, pool, span=None, conn=None):
         super(TransactionConnection, self).__init__(pool, span)
@@ -122,6 +123,7 @@ class TransactionConnection(BaseConnection):
             pass
         finally:
             await self.release()
+
 
 class ConnectionPool(object):
     PGHOST = None

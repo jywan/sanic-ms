@@ -8,6 +8,11 @@ DEFAULT_CONFIG = {
     ''
 }
 
+DB_CONFIG = {
+
+}
+
+
 class Config:
 
     def __init__(self, loop, host='127.0.0.1', port=8500):

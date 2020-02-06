@@ -1,0 +1,14 @@
+unittest-xml-reporting
+yarl
+multidict
+ujson
+sanic>=0.7.0
+uvloop>=0.8.0
+peewee>=3.13.1
+psycopg2>=2.8.4
+asyncpg>=0.20.1
+aiohttp>=3.6.2
+opentracing>=2.0.0
+basictracer>=3.1.0
+pyyaml>=5.3
+python-consul==1.1.0

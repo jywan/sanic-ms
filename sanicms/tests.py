@@ -13,10 +13,10 @@ from sanic.views import CompositionView
 from asyncpg import create_pool
 from urllib.parse import urlparse, parse_qsl, urlencode
 
-from sanic_ms.client import Client, ClientSessionConn
-from sanic_ms.db import ConnectionPool
+from sanicms.client import Client, ClientSessionConn
+from sanicms.db import ConnectionPool
 
-from sanic_ms.config import DB_CONFIG
+from sanicms.config import DB_CONFIG
 
 logger = logging.getLogger('sanic')
 
@@ -26,14 +26,15 @@ except ImportError:
     class URL(str):
         pass
 
+
 class MockResponse(object):
     resp = None
 
-    def __init__(self, url, method = hdrs.METH_GET,
-                 status = 200, body = '',
-                 exception = None,
-                 headers = None, payload = None,
-                 content_type = 'application/json', ):
+    def __init__(self, url, method=hdrs.METH_GET,
+                 status=200, body='',
+                 exception=None,
+                 headers=None, payload=None,
+                 content_type='application/json', ):
         self.url = self.parse_url(url)
         self.method = method.lower()
         self.status = status
@@ -78,6 +79,7 @@ class MockResponse(object):
 
         return self.resp
 
+
 class MockClient(Client):
 
     def __init__(self, **kwargs):
@@ -107,12 +109,12 @@ class MockClient(Client):
     def options(self, url, **kwargs):
         self.add(url, method=hdrs.METH_OPTIONS, **kwargs)
 
-    def add(self, url, method = hdrs.METH_GET, status = 200,
-            body = '',
-            exception = None,
-            content_type = 'application/json',
-            payload = None,
-            headers = None):
+    def add(self, url, method=hdrs.METH_GET, status=200,
+            body='',
+            exception=None,
+            content_type='application/json',
+            payload=None,
+            headers=None):
         self._responses.append(MockResponse(
             url,
             method=method,
@@ -123,7 +125,6 @@ class MockClient(Client):
             payload=payload,
             headers=headers,
         ))
-
 
 
 class MockClientSessionConn(ClientSessionConn):
@@ -141,7 +142,7 @@ class MockClientSessionConn(ClientSessionConn):
             (None, None)
         )
 
-        #if i is not None:
+        # if i is not None:
         #    del self._responses[i]
         return resp
 
@@ -169,15 +170,15 @@ class TestAPIClient(object):
             for _method, _handler in method_handlers:
                 self._url_map.update({
                     _handler.__name__: {'method': _method, 'url': uri,
-                            'parameters': [p.name for p in route.parameters]}
+                                        'parameters': [p.name for p in route.parameters]}
                 })
 
     def __getattr__(self, name):
         def request(**kwargs):
-            #params = kwargs.pop('params', None)
-            #data = kwargs.pop('data', None)
-            #n = "%s.%s" % (self._blueprint, name) if self._blueprint else name
-            #url = self._app.url_for(n, **kwargs)
+            # params = kwargs.pop('params', None)
+            # data = kwargs.pop('data', None)
+            # n = "%s.%s" % (self._blueprint, name) if self._blueprint else name
+            # url = self._app.url_for(n, **kwargs)
             url_map = self._url_map[name]
             url, data, params = url_map['url'], {}, {}
             for k, v in kwargs.items():
@@ -198,7 +199,9 @@ class TestAPIClient(object):
             if 'DELETE' in url_map['method']:
                 req, res = self._app.test_client.delete(url, params=params)
             return res
+
         return request
+
 
 class APITestCase(unittest.TestCase):
     _app = None
@@ -207,12 +210,14 @@ class APITestCase(unittest.TestCase):
     def setUp(self):
         super(APITestCase, self).setUp()
         self._mock = MockClient()
+
         @self._app.listener('before_server_start')
         async def set_mock_client(app, loop):
             if app.client:
                 app.client.close()
             app.client = self._mock
             app.db = await ConnectionPool(loop=loop).init(DB_CONFIG)
+
         self.client = TestAPIClient(self._app, self._blueprint)
 
     def tearDown(self):

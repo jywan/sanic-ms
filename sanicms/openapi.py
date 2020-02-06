@@ -59,7 +59,7 @@ def build_spec(app, loop):
     for uri, route in app.router.routes_all.items():
         if uri.startswith("/swagger") or uri.startswith("/openapi") \
                 or '<file_uri' in uri:
-                # TODO: add static flag in sanic routes
+            # TODO: add static flag in sanic routes
             continue
 
         # --------------------------------------------------------------- #
@@ -81,9 +81,9 @@ def build_spec(app, loop):
 
             route_spec = route_specs.get(_handler) or RouteSpec()
             consumes_content_types = route_spec.consumes_content_type or \
-                getattr(app.config, 'API_CONSUMES_CONTENT_TYPES', ['application/json'])
+                                     getattr(app.config, 'API_CONSUMES_CONTENT_TYPES', ['application/json'])
             produces_content_types = route_spec.produces_content_type or \
-                getattr(app.config, 'API_PRODUCES_CONTENT_TYPES', ['application/json'])
+                                     getattr(app.config, 'API_PRODUCES_CONTENT_TYPES', ['application/json'])
 
             # Parameters - Path & Query String
             path_parameters = [{
@@ -136,7 +136,7 @@ def build_spec(app, loop):
 
         uri_parsed = uri
         for parameter in route.parameters:
-            uri_parsed = re.sub('<'+parameter.name+'.*?>', '{'+parameter.name+'}', uri_parsed)
+            uri_parsed = re.sub('<' + parameter.name + '.*?>', '{' + parameter.name + '}', uri_parsed)
 
         paths[uri_parsed] = methods
 
@@ -154,7 +154,7 @@ def build_spec(app, loop):
     tags = {}
     for route_spec in route_specs.values():
         if route_spec.blueprint and route_spec.blueprint.name in ('swagger', 'openapi'):
-                # TODO: add static flag in sanic routes
+            # TODO: add static flag in sanic routes
             continue
         for tag in route_spec.tags:
             tags[tag] = True

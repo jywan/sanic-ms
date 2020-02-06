@@ -16,6 +16,7 @@ migrator = PostgresqlMigrator(db_manager)
 
 logger = logging.getLogger('sanic')
 
+
 class MigrationRecord(Model):
     id = PrimaryKeyField()
     table = CharField()
@@ -27,6 +28,7 @@ class MigrationRecord(Model):
     class Meta:
         table_name = 'migration_record'
         database = db_manager
+
 
 def info(version=None, author=None, datetime=None):
     def decorator(fn):
@@ -43,14 +45,17 @@ def info(version=None, author=None, datetime=None):
                 table=table, version=version, author=author if author else '',
                 datetime=datetime if datetime else datetime.utcnow())
             fn(*args, **kwargs)
+
         _decorator.version = version
         _decorator.author = author
         _decorator.datetime = datetime
         return _decorator
+
     decorator.version = version
     decorator.author = author
     decorator.datetime = datetime
     return decorator
+
 
 class MigrationModel:
     _db = db_manager

@@ -59,9 +59,9 @@ class ServiceManager(object):
         service = self.consul.agent.service
         check = consul.Check.http(url, '10s')
         res = await service.register(self.name, service_id=self.service_id,
-                               address=address, port=port, check=check)
+                                     address=address, port=port, check=check)
         logger.info('register service: name:{}, service_id:{}, address:{}, port:{}, res:{}'
-            .format(self.name, self.service_id, address, port, res))
+                    .format(self.name, self.service_id, address, port, res))
 
     async def deregister(self):
         service = self.consul.agent.service

@@ -60,7 +60,6 @@ class ClientSessionConn:
             carrier=http_header_carrier)
         return http_header_carrier
 
-
     def request(self, method, url, **kwargs):
         headers = self.before(method, url)
         res = self._client.request(method, self.handler_url(url),
@@ -71,7 +70,7 @@ class ClientSessionConn:
 
     def get(self, url, allow_redirects=True, **kwargs):
         return self.request(hdrs.METH_GET, url, allow_redirects=True,
-                       **kwargs)
+                            **kwargs)
 
     def post(self, url, data=None, **kwargs):
         return self.request(hdrs.METH_POST, url, data=data, **kwargs)
